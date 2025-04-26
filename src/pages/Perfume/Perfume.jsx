@@ -48,8 +48,6 @@ const Perfume = () => {
 
   const handleUpdate = async () => {
     try {
-      console.log(formData);
-      console.log(editModal.id);
       await axios.patch(
         `http://localhost:9000/api/parfume/${editModal.id}`,
         formData,
