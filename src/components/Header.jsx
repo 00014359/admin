@@ -12,7 +12,6 @@ const Header = () => {
     if (!token) {
       navigate("/login");
     } else {
-      // Prevent redirect loop from parfume route
       if (location.pathname === "/" || location.pathname === "/login") {
         navigate("/parfume");
       }

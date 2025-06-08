@@ -16,15 +16,16 @@ const Order = () => {
       }
 
       try {
-        const res = await axios.get("http://localhost:9000/api/order", {
-          headers: {
-            Authorization: token,
-          },
-        });
+        const res = await axios.get(
+          "https://server-production-45af.up.railway.app/api/order",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setOrders(res.data);
       } catch (err) {
-        console.error(err);
-        setError("Failed to fetch orders.");
+        console.error("Failed to fetch orders:", err);
+        setError("Failed to fetch orders. Please try again later.");
       }
     };
 
@@ -38,33 +39,42 @@ const Order = () => {
       <table className={c.table}>
         <thead>
           <tr>
-            <th>Customer</th>
-            <th>Phone</th>
-            <th>Perfume</th>
+            <th>Customer Name</th>
+            <th>Perfume Name</th>
             <th>Brand</th>
-            <th>Image</th>
-            <th>Price ($)</th>
+            <th>Quantity</th>
+            <th>Unit Price ($)</th>
+            <th>Total Item Price ($)</th> <th>Image</th>
             <th>Ordered At</th>
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
-            <tr key={order.id}>
-              <td>{order.customerName}</td>
-              <td>{order.phone}</td>
-              <td>{order.perfume?.name}</td>
-              <td>{order.perfume?.brand}</td>
-              <td>
-                <img
-                  src={order.perfume?.image}
-                  alt={order.perfume?.name}
-                  className={c.perfumeImage}
-                />
-              </td>
-              <td>{order.perfume?.price}</td>
-              <td>{new Date(order.createdAt).toLocaleString()}</td>
+          {orders.length > 0 ? (
+            orders.map((order) => (
+              <tr key={order.id}>
+                <td>{order.user?.name || "N/A"}</td>
+                <td>{order.perfume?.name || "N/A"}</td>
+                <td>{order.perfume?.brand || "N/A"}</td>
+                <td>{order.quantity}</td>
+                <td>{order.perfume?.price}</td>
+                <td>
+                  {(order.perfume?.price * order.quantity).toFixed(2)}
+                </td>{" "}
+                <td>
+                  <img
+                    src={order.perfume?.image || "placeholder.jpg"}
+                    alt={order.perfume?.name || "Perfume Image"}
+                    className={c.perfumeImage}
+                  />
+                </td>
+                <td>{new Date(order.createdAt).toLocaleString()}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8">No orders found.</td>{" "}
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
