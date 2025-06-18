@@ -26,7 +26,6 @@ const Perfume = () => {
     longevity: 5,
     sillage: 3,
   });
-
   const [searchQuery, setSearchQuery] = useState("");
   const [minPriceFilter, setMinPriceFilter] = useState("");
   const [maxPriceFilter, setMaxPriceFilter] = useState("");
@@ -35,7 +34,8 @@ const Perfume = () => {
   const [occasionFilter, setOccasionFilter] = useState("");
   const [intensityFilter, setIntensityFilter] = useState("");
   const [fragranceFamilyFilter, setFragranceFamilyFilter] = useState("");
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const token = localStorage.getItem("token");
 
   const fetchPerfumes = async () => {
@@ -50,16 +50,18 @@ const Perfume = () => {
       if (intensityFilter) params.append("intensity", intensityFilter);
       if (fragranceFamilyFilter)
         params.append("fragranceFamily", fragranceFamilyFilter);
+      params.append("page", currentPage);
+      params.append("limit", 10);
 
       const queryString = params.toString();
       const url = `https://server-production-45af.up.railway.app/api/parfume${
         queryString ? `?${queryString}` : ""
       }`;
-
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPerfumes(res.data);
+      setPerfumes(res.data.perfumes);
+      setTotalPages(res.data.totalPages);
     } catch (err) {
       setError("Failed to load perfumes");
     }
@@ -76,6 +78,7 @@ const Perfume = () => {
     occasionFilter,
     intensityFilter,
     fragranceFamilyFilter,
+    currentPage,
   ]);
 
   const handleDelete = async (id) => {
@@ -170,6 +173,11 @@ const Perfume = () => {
     setOccasionFilter("");
     setIntensityFilter("");
     setFragranceFamilyFilter("");
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   const commonSelectProps = {
@@ -180,7 +188,6 @@ const Perfume = () => {
     <div className={c.perfumeContainer}>
       <h2>Perfume List</h2>
       {error && <p className={c.error}>{error}</p>}
-
       <div className={c.filters}>
         <input
           type="text"
@@ -213,7 +220,6 @@ const Perfume = () => {
           <option value="FEMALE">FEMALE</option>
           <option value="UNISEX">UNISEX</option>
         </select>
-
         <select
           value={seasonFilter}
           onChange={(e) => setSeasonFilter(e.target.value)}
@@ -267,7 +273,6 @@ const Perfume = () => {
           Reset Filters
         </button>
       </div>
-
       <table className={c.table}>
         <thead>
           <tr>
@@ -301,7 +306,19 @@ const Perfume = () => {
           ))}
         </tbody>
       </table>
-
+      <div className={c.pagination}>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i + 1}
+            onClick={() => handlePageChange(i + 1)}
+            className={`${c.pageButton} ${
+              currentPage === i + 1 ? c.activePage : ""
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
       {(editModal || createModal) && (
         <div className={c.modal}>
           <div className={c.modalContent}>
@@ -368,8 +385,6 @@ const Perfume = () => {
               <option value="FEMALE">FEMALE</option>
               <option value="UNISEX">UNISEX</option>
             </select>
-
-            {/* New fields for create/edit modal */}
             <select
               value={formData.season}
               onChange={(e) =>
@@ -460,7 +475,6 @@ const Perfume = () => {
               min="1"
               max="5"
             />
-
             <div className={c.modalActions}>
               <button onClick={editModal ? handleUpdate : handleCreate}>
                 {editModal ? "Update" : "Create"}
@@ -477,7 +491,6 @@ const Perfume = () => {
           </div>
         </div>
       )}
-
       <button
         className={c.fab}
         onClick={() => {
