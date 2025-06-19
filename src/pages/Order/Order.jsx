@@ -46,6 +46,7 @@ const Order = () => {
             <th>Unit Price ($)</th>
             <th>Total Item Price ($)</th> <th>Image</th>
             <th>Ordered At</th>
+            <th>Order Address</th>
           </tr>
         </thead>
         <tbody>
@@ -68,6 +69,7 @@ const Order = () => {
                   />
                 </td>
                 <td>{new Date(order.createdAt).toLocaleString()}</td>
+                <td>{order.orderAddress}</td>
               </tr>
             ))
           ) : (
